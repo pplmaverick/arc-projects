@@ -24,7 +24,7 @@ const arc = defineChain({
 });
 
 const STATUS_LABEL = ["OPEN", "LOCKED", "SETTLED"];
-const MARKET_IDS = [15n, 16n, 17n, 18n];
+const MARKET_IDS = [23n, 24n, 25n, 26n];
 
 async function main() {
   const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -49,9 +49,16 @@ async function main() {
   const walletClient = createWalletClient({
     account,
     chain: arc,
-    transport: http(),
+    transport: http(undefined, {
+      fetchOptions: { headers: { Origin: "http://localhost" } },
+    }),
   });
-  const publicClient = createPublicClient({ chain: arc, transport: http() });
+  const publicClient = createPublicClient({
+    chain: arc,
+    transport: http(undefined, {
+      fetchOptions: { headers: { Origin: "http://localhost" } },
+    }),
+  });
 
   const summary: {
     id: bigint;

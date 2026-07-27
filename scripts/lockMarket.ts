@@ -45,9 +45,16 @@ async function main() {
   const walletClient = createWalletClient({
     account,
     chain: arc,
-    transport: http(),
+    transport: http(undefined, {
+      fetchOptions: { headers: { Origin: "http://localhost" } },
+    }),
   });
-  const publicClient = createPublicClient({ chain: arc, transport: http() });
+  const publicClient = createPublicClient({
+    chain: arc,
+    transport: http(undefined, {
+      fetchOptions: { headers: { Origin: "http://localhost" } },
+    }),
+  });
 
   // ── 讀取市場狀態 ─────────────────────────────────────────────────────────────
   const marketData = (await publicClient.readContract({

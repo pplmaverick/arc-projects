@@ -46,22 +46,28 @@ async function main() {
   const walletClient = createWalletClient({
     account,
     chain: arc,
-    transport: http(),
+    transport: http(undefined, {
+      fetchOptions: { headers: { Origin: "http://localhost" } },
+    }),
   });
-  const publicClient = createPublicClient({ chain: arc, transport: http() });
+  const publicClient = createPublicClient({
+    chain: arc,
+    transport: http(undefined, {
+      fetchOptions: { headers: { Origin: "http://localhost" } },
+    }),
+  });
 
-  // ── 計算時間參數 ─────────────────────────────────────────────────────────────
-  const now = Math.floor(Date.now() / 1000);
-  const targetDate = now + 24 * 3_600; // 明天同一時刻
-  const lockTime = targetDate - 3_600;  // targetDate 前 1 小時
+  // ── 時間參數（固定值：2026-08-10 09:00 / 08:00 UTC）──────────────────────────────
+  const targetDate = 1786352400n; // 2026-08-10T09:00:00Z
+  const lockTime = 1786348800n;   // 2026-08-10T08:00:00Z
 
   // 5 個區間：≤25 | 25~28 | 28~31 | 31~34 | >34
   const buckets = [25n, 28n, 31n, 34n];
 
   console.log("Creating market on WeatherMarket:", weatherMarketAddr);
-  console.log("  city      :", "Taipei");
-  console.log("  targetDate:", new Date(targetDate * 1000).toISOString());
-  console.log("  lockTime  :", new Date(lockTime * 1000).toISOString());
+  console.log("  city      :", "Tokyo");
+  console.log("  targetDate:", new Date(Number(targetDate) * 1000).toISOString());
+  console.log("  lockTime  :", new Date(Number(lockTime) * 1000).toISOString());
   console.log("  buckets   :", `[${buckets.join(",")}] → ${buckets.length + 1} 個區間`);
 
   // ── 送出交易 ─────────────────────────────────────────────────────────────────
@@ -69,7 +75,7 @@ async function main() {
     address: weatherMarketAddr,
     abi: artifact.abi,
     functionName: "createMarket",
-    args: ["Taipei", BigInt(targetDate), buckets, BigInt(lockTime)],
+    args: ["Tokyo", BigInt(targetDate), buckets, BigInt(lockTime)],
     ...GAS_OPTS,
   });
 

@@ -14,10 +14,15 @@ const WEATHER_MARKET =
 const STATUS_LABEL = ["OPEN", "LOCKED", "SETTLED"];
 
 async function main() {
-  const publicClient = createPublicClient({ chain: arc, transport: http() });
+  const publicClient = createPublicClient({
+    chain: arc,
+    transport: http(undefined, {
+      fetchOptions: { headers: { Origin: "http://localhost" } },
+    }),
+  });
   const artifact = await hre.artifacts.readArtifact("WeatherMarket");
 
-  for (let id = 19; id <= 22; id++) {
+  for (let id = 19; id <= 30; id++) {
     try {
       const result = (await publicClient.readContract({
         address: WEATHER_MARKET,

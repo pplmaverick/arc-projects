@@ -36,6 +36,9 @@ export default defineConfig({
       url: process.env.ARC_RPC_URL ?? "https://rpc.testnet.arc.network",
       accounts: [deployerKey],
       chainId: 5042002,
+      httpHeaders: {
+        Origin: "http://localhost",
+      },
     },
     pharos: {
       type: "http",
