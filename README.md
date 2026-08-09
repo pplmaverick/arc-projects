@@ -53,22 +53,7 @@ The contract stack is built around Arc's specific properties rather than being a
 
 ## Architecture
 
-```
-n8n (self-hosted VPS)
-    │
-    ├── HTTP Request → OpenWeather API    ← fetch daily high/low temp
-    ├── (optional) ECMWF / GFS cross-check
-    └── Write Contract → AdminOracle.submitResult(city, temp, marketId)
-                              │
-                              └── WeatherMarket.submitResult(marketId, finalTemp)
-                                        │
-                                        ├── determine winning bucket
-                                        ├── record finalTemp on-chain
-                                        └── unlock claimWinnings()
-
-ERC-8004 AI Agent (agentId: 6762)
-    └── reads market state, can call placeBet() programmatically
-```
+<img src="docs/arc_presage_architecture.svg" alt="Presage architecture: Place Bet, Settle (two-stage oracle, n8n-triggered), and Claim Winnings" width="680" />
 
 ## Deployed Contracts
 
