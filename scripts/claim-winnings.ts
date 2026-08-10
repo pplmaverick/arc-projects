@@ -24,7 +24,7 @@ const arc = defineChain({
 });
 
 const STATUS_LABEL = ["OPEN", "LOCKED", "SETTLED"];
-const MARKET_IDS = [23n, 24n, 25n, 26n];
+const MARKET_IDS = [27n, 28n];
 
 async function main() {
   const __dirname = dirname(fileURLToPath(import.meta.url));
