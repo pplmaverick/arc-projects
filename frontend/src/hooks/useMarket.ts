@@ -94,6 +94,7 @@ async function readWithRetry<T>(fn: () => Promise<T>, attempts = 4): Promise<T> 
 export function useLatestMarketIds(cityNames: readonly CityName[], lookback = 20) {
   const publicClient = usePublicClient()
   const [marketIds, setMarketIds] = useState<Partial<Record<CityName, bigint>>>({})
+  const [statuses, setStatuses] = useState<Partial<Record<CityName, number>>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -106,6 +107,7 @@ export function useLatestMarketIds(cityNames: readonly CityName[], lookback = 20
       setIsLoading(true)
       setError(null)
       const found: Partial<Record<CityName, bigint>> = {}
+      const foundStatuses: Partial<Record<CityName, number>> = {}
       try {
         const nextMarketId = await readWithRetry(() =>
           client.readContract({
@@ -132,6 +134,7 @@ export function useLatestMarketIds(cityNames: readonly CityName[], lookback = 20
           const city = result[0] as CityName
           if (remaining.has(city)) {
             found[city] = id
+            foundStatuses[city] = result[3] as number
             remaining.delete(city)
           }
           if (id === 0n) break
@@ -144,6 +147,7 @@ export function useLatestMarketIds(cityNames: readonly CityName[], lookback = 20
         // Keep whatever cities we did resolve even if a later read in the loop failed.
         if (!cancelled) {
           setMarketIds(found)
+          setStatuses(foundStatuses)
           setIsLoading(false)
         }
       }
@@ -155,7 +159,7 @@ export function useLatestMarketIds(cityNames: readonly CityName[], lookback = 20
     }
   }, [publicClient, cityNames, lookback])
 
-  return { marketIds, isLoading, error }
+  return { marketIds, statuses, isLoading, error }
 }
 
 export function useUserBet(marketId: bigint, bucket: number, address: `0x${string}` | undefined) {

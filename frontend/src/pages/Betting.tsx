@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { formatUnits } from 'viem'
 import { CITIES, CITY_NAMES, getBucketLabel, BUCKET_COUNT, type CityName } from '../lib/wagmi'
 import { useMarket, useLiveWeather, useLatestMarketIds } from '../hooks/useMarket'
@@ -157,11 +157,32 @@ function WeatherCard({ city, slug }: WeatherCardProps) {
 
 export default function Betting() {
   const [selectedCity, setSelectedCity] = useState<CityName>('Taipei')
+  const [userPickedCity, setUserPickedCity] = useState(false)
   const [betBucket, setBetBucket] = useState<number | null>(null)
 
   const city = CITIES[selectedCity]
-  const { marketIds, isLoading: isResolvingMarket } = useLatestMarketIds(CITY_NAMES)
+  const { marketIds, statuses, isLoading: isResolvingMarket } = useLatestMarketIds(CITY_NAMES)
   const marketId = marketIds[selectedCity]
+
+  // Surface OPEN markets first in the tab bar (stable order otherwise), so
+  // visitors see something bettable without hunting past settled cities.
+  // Falls back to the untouched CITY_NAMES order until statuses resolve.
+  const orderedCities = isResolvingMarket
+    ? CITY_NAMES
+    : [...CITY_NAMES].sort((a, b) => {
+        const aOpen = statuses[a] === 0 ? 0 : 1
+        const bOpen = statuses[b] === 0 ? 0 : 1
+        return aOpen - bOpen
+      })
+
+  // Default the landing tab to the first city with an OPEN market, so visitors
+  // don't land on a settled market with nothing to bet on. Only kicks in before
+  // the user has clicked a tab themselves.
+  useEffect(() => {
+    if (userPickedCity || isResolvingMarket) return
+    const openCity = orderedCities.find((name) => statuses[name] === 0)
+    if (openCity) setSelectedCity(openCity)
+  }, [isResolvingMarket, orderedCities, statuses, userPickedCity])
   const { market, isLoading: isLoadingMarket, refetch } = useMarket(marketId)
   const isLoading = isResolvingMarket || isLoadingMarket
 
@@ -172,10 +193,13 @@ export default function Betting() {
     <div className="px-6 py-6 max-w-5xl mx-auto">
       {/* City Tabs */}
       <div className="flex items-center gap-8 mb-8 overflow-x-auto no-scrollbar">
-        {CITY_NAMES.map((cityName) => (
+        {orderedCities.map((cityName) => (
           <button
             key={cityName}
-            onClick={() => setSelectedCity(cityName)}
+            onClick={() => {
+              setUserPickedCity(true)
+              setSelectedCity(cityName)
+            }}
             className="flex flex-col items-start min-w-fit group transition-all"
           >
             <span
