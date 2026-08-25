@@ -25,8 +25,8 @@ const arc = defineChain({
 const STATUS_LABEL = ["OPEN", "LOCKED", "SETTLED"];
 
 const SUBMISSIONS = [
-  { marketId: 27n, finalTemp: 29n }, // Taipei, Open-Meteo archive 2026-08-10T09:00Z = 29.2°C
-  { marketId: 28n, finalTemp: 28n }, // Tokyo, Open-Meteo archive 2026-08-10T09:00Z = 27.6°C
+  { marketId: 29n, finalTemp: 26n }, // Taipei, Open-Meteo archive 2026-08-24T08:00Z = 25.8°C
+  { marketId: 30n, finalTemp: 31n }, // Tokyo, Open-Meteo archive 2026-08-24T08:00Z = 30.9°C
 ];
 
 async function main() {
