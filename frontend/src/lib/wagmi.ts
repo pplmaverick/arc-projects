@@ -23,10 +23,9 @@ export const wagmiConfig = createConfig({
     // (see withRateLimitRetry in MyBets.tsx). Leaving viem's default retryCount: 3 here
     // meant every failed request was silently retried 3x by the transport *underneath*
     // our own retry loop, multiplying the number of requests hitting an already-limited RPC.
-    [arcTestnet.id]: http(
-      import.meta.env.VITE_RPC_URL ?? 'https://rpc.testnet.arc.network',
-      { retryCount: 0 }
-    ),
+    // Routed through our own /api/rpc proxy (frontend/api/rpc.ts) so the Alchemy key stays
+    // server-side — never bundled into client JS via a VITE_-prefixed env var.
+    [arcTestnet.id]: http('/api/rpc', { retryCount: 0 }),
   },
 })
 
